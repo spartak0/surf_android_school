@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 data class Spacing(
     val small: Dp = 8.dp,
     val medium: Dp = 16.dp,
+    val mediumLarge: Dp = 24.dp,
     val large: Dp = 32.dp,
 )
 

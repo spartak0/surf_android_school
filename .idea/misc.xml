@@ -7,7 +7,20 @@
         <entry key="../../../../../layout/compose-model-1657101794479.xml" value="1.256317689530686" />
         <entry key="../../../../../layout/compose-model-1657104683192.xml" value="1.2671480144404332" />
         <entry key="../../../../../layout/compose-model-1657113061021.xml" value="0.25" />
+        <entry key="../../../../../layout/compose-model-1657119809539.xml" value="2.0" />
+        <entry key="../../../../../layout/compose-model-1657120191270.xml" value="0.21072635135135134" />
+        <entry key="../../../../../layout/compose-model-1657121451485.xml" value="1.0" />
+        <entry key="../../../../../layout/compose-model-1657121532933.xml" value="2.0" />
+        <entry key="../../../../../layout/compose-model-1657121832726.xml" value="0.24537037037037038" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1325" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1325" />
         <entry key="app/src/main/res/drawable/ic_surf_edu.xml" value="0.219" />
+        <entry key="app/src/main/res/font/montserrat_light.xml" value="0.2109375" />
+        <entry key="app/src/main/res/font/montserrat_medium.xml" value="0.2625" />
+        <entry key="app/src/main/res/font/montserrat_normal.xml" value="0.27760416666666665" />
+        <entry key="app/src/main/res/font/montserrat_regular.xml" value="0.2109375" />
+        <entry key="app/src/main/res/font/montserrat_semibold.xml" value="0.2625" />
+        <entry key="app/src/main/res/font/montserrat_thin.xml" value="0.2109375" />
       </map>
     </option>
   </component>

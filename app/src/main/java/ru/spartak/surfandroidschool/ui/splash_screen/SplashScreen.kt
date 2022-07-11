@@ -1,4 +1,4 @@
-package ru.spartak.surfandroidschool.ui.splashScreen
+package ru.spartak.surfandroidschool.ui.splash_screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -24,10 +24,4 @@ fun SplashScreen() {
             modifier = Modifier.size(91.dp, 105.dp)
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SplashScreenPreview() {
-    SplashScreen()
 }

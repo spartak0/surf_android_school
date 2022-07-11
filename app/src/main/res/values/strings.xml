@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">SurfAndroidSchool</string>
+    <string name="login">Логин</string>
+    <string name="entry">Вход</string>
+    <string name="signIn">Войти</string>
+    <string name="password">Пароль</string>
+    <string name="hidePassword">Hide password</string>
+    <string name="showPassword">Show password</string>
 </resources>
