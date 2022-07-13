@@ -18,7 +18,7 @@ private val LightColorPalette = lightColors(
     surface = LightGray,
     onSurface = GrayBackgroundView,
     error = Red,
-    onError = White
+    onError = White,
 )
 
 @Composable

@@ -1,6 +1,5 @@
 package ru.spartak.surfandroidschool.ui.theme
 
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -19,17 +18,22 @@ val montserratFontFamily = FontFamily(
 val Typography = Typography(
     defaultFontFamily = montserratFontFamily,
     //top bar
-    h1 = TextStyle(
+    h6 = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp
     ),
     //placeholder
-    subtitle1=  TextStyle(
+    subtitle1 = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),
+    //bottom navigation item
+    subtitle2 = TextStyle(
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 10.sp
+    ),
     //text tv
-    body1=  TextStyle(
+    body1 = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),

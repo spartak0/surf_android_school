@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 class LoginScreenViewModel: ViewModel() {
     fun validationTestLogin(login: String):Pair<Boolean,String> {
         if (login.isEmpty()) return Pair(false, "Поле не может быть пустым")
-        if (login.length!=10 || login.isDigitsOnly()) return Pair(false, "Не верный формат номера телефона")
+        if (login.length!=10 || !login.isDigitsOnly()) return Pair(false, "Не верный формат номера телефона")
         return Pair(true,"")
     }
     fun validationTestPassword(password: String):Pair<Boolean,String> {

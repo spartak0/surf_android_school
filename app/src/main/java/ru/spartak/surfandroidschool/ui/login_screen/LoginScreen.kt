@@ -7,7 +7,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,17 +32,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel = viewModel()) {
     DefaultTheme {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.entry),
-                            style = MaterialTheme.typography.h1
-                        )
-                    },
-                    modifier = Modifier.height(56.dp),
-                    elevation = 0.dp,
-                    backgroundColor = Color.Transparent
-                )
+                TopBar()
             },
         ) {
             val spacing = MaterialTheme.spacing
@@ -99,6 +88,16 @@ fun LoginScreen(viewModel: LoginScreenViewModel = viewModel()) {
 }
 
 @Composable
+fun TopBar(){
+    TopAppBar(
+        title = { Text(text = stringResource(R.string.entry)) },
+        modifier = Modifier.height(56.dp),
+        elevation = 0.dp,
+        backgroundColor = MaterialTheme.colors.background
+    )
+}
+
+@Composable
 fun LoginView(
     text: String,
     onValueChange: (String) -> Unit,
@@ -130,7 +129,7 @@ fun LoginView(
             isError = error.isNotEmpty()
         )
         if (error.isNotEmpty()) {
-            validationErrorText(text = error)
+            ValidationErrorText(text = error)
         }
     }
 }
@@ -179,7 +178,7 @@ fun PasswordView(
             isError = error.isNotEmpty()
         )
         if (error.isNotEmpty()) {
-            validationErrorText(text = error)
+            ValidationErrorText(text = error)
         }
     }
 }
