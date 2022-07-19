@@ -37,7 +37,7 @@ fun MainScreen() {
                 )
             }
         ) {
-            BottomNavGraph(navController = navController)
+            BottomNavGraph(navController = navController, it.calculateBottomPadding())
         }
     }
 }
@@ -64,29 +64,6 @@ fun BottomBar(
         }
     }
 }
-
-//@Composable
-//fun TopBar(screens: List<BottomBarItemScreen>, navController: NavHostController) {
-//    val appBarText = remember { mutableStateOf("") }
-//    navController.addOnDestinationChangedListener { _, destination, _ ->
-//        run {
-//            screens.forEach {
-//                if (it.route == destination.route) appBarText.value = it.title
-//            }
-//        }
-//    }
-//    TopAppBar(
-//        backgroundColor = MaterialTheme.colors.background,
-//        modifier = Modifier.height(56.dp),
-//        elevation = 0.dp
-//    ) {
-//        Text(
-//            text = appBarText.value,
-//            style = MaterialTheme.typography.h1,
-//            color = MaterialTheme.colors.primary
-//        )
-//    }
-//}
 
 @Composable
 fun RowScope.AddItem(

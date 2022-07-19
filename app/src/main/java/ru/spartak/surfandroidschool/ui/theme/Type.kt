@@ -27,7 +27,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),
-    //bottom navigation item
+    //bottom navigation title
     subtitle2 = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 10.sp
@@ -37,6 +37,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),
+    //button
     button = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp

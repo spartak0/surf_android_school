@@ -1,23 +1,30 @@
 package ru.spartak.surfandroidschool.ui.login_screen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.spartak.surfandroidschool.R
+import ru.spartak.surfandroidschool.ui.Error
+import ru.spartak.surfandroidschool.ui.detail.BottomBtn
 import ru.spartak.surfandroidschool.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.ui.theme.spacing
 
@@ -27,8 +34,11 @@ import ru.spartak.surfandroidschool.ui.theme.spacing
 fun LoginScreen(viewModel: LoginScreenViewModel = viewModel()) {
     var textLogin by remember { mutableStateOf("") }
     var textPassword by remember { mutableStateOf("") }
-    var verificationErrorLogin by remember { mutableStateOf("") }
-    var verificationErrorPassword by remember { mutableStateOf("") }
+
+    var verificationLogin by remember { mutableStateOf(Error()) }
+    var verificationPassword by remember { mutableStateOf(Error()) }
+
+    val isBottomError = remember { mutableStateOf(false) }
     DefaultTheme {
         Scaffold(
             topBar = {
@@ -39,7 +49,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel = viewModel()) {
             ConstraintLayout(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val (loginView, passwordView, signInBtn) = createRefs()
+                val (loginView, passwordView, signInBtn, bottomViewError) = createRefs()
                 val maxCharLogin = 10
                 LoginView(
                     text = textLogin,
@@ -52,7 +62,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel = viewModel()) {
                         end.linkTo(parent.end, margin = spacing.medium)
                         width = Dimension.fillToConstraints
                     },
-                    error = verificationErrorLogin
+                    error = verificationLogin
                 )
 
                 PasswordView(
@@ -64,31 +74,74 @@ fun LoginScreen(viewModel: LoginScreenViewModel = viewModel()) {
                         end.linkTo(parent.end, margin = spacing.medium)
                         width = Dimension.fillToConstraints
                     },
-                    error = verificationErrorPassword
+                    error = verificationPassword
                 )
-                SignInBtn(modifier = Modifier.constrainAs(signInBtn) {
-                    bottom.linkTo(parent.bottom, margin = 20.dp)
-                    start.linkTo(parent.start, margin = spacing.medium)
-                    end.linkTo(parent.end, margin = spacing.medium)
-                    width = Dimension.fillToConstraints
-                }) {
-                    //todo спросить по поводу полной инкапсуляцции во вм
-                    val validationLogin = viewModel.validationTestLogin(textLogin)
-                    val validationPassword = viewModel.validationTestPassword(textPassword)
-                    verificationErrorLogin = if (!validationLogin.first)
-                        validationLogin.second
-                    else ""
-                    verificationErrorPassword = if (!validationPassword.first)
-                        validationPassword.second
-                    else ""
+
+                if (isBottomError.value) {
+                    BottomErrorSnackbar(modifier = Modifier.constrainAs(bottomViewError) {
+                        bottom.linkTo(signInBtn.top, spacing.small)
+                        start.linkTo(parent.start, spacing.small)
+                        end.linkTo(parent.end, spacing.small)
+                        height = Dimension.value(48.dp)
+                        width = Dimension.fillToConstraints
+                    }) { isBottomError.value = false }
+                }
+
+
+                BottomBtn(
+                    text = stringResource(id = R.string.signIn),
+                    modifier = Modifier
+                        .constrainAs(signInBtn) {
+                            bottom.linkTo(parent.bottom, margin = 20.dp)
+                            start.linkTo(parent.start, margin = spacing.medium)
+                            end.linkTo(parent.end, margin = spacing.medium)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.value(48.dp)
+                        }) {
+                    verificationLogin = viewModel.validationTestLogin(textLogin)
+                    verificationPassword = viewModel.validationTestPassword(textPassword)
+                    if (!verificationLogin.isError && !verificationPassword.isError) viewModel.login(
+                        phone = textLogin,
+                        password = textPassword,
+                        success = {
+                            //todo navigate
+                        },
+                        notSuccess = {
+                            isBottomError.value = true
+                        }
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TopBar(){
+fun BottomErrorSnackbar(modifier: Modifier, snackbarOnClick: () -> Unit) {
+    Card(
+        modifier = modifier,
+        onClick = { snackbarOnClick() },
+        elevation = 0.dp,
+        shape = RectangleShape) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.error),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Неправильный логин или пароль",
+                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.W500),
+                color = MaterialTheme.colors.onError
+            )
+        }
+    }
+}
+
+
+@Composable
+fun TopBar() {
     TopAppBar(
         title = { Text(text = stringResource(R.string.entry)) },
         modifier = Modifier.height(56.dp),
@@ -102,7 +155,7 @@ fun LoginView(
     text: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    error: String = ""
+    error: Error
 ) {
     val mobileNumberTransformer = MobileNumberTransformer()
     Column(modifier = modifier) {
@@ -126,10 +179,10 @@ fun LoginView(
                 .fillMaxWidth()
                 .height(55.dp),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            isError = error.isNotEmpty()
+            isError = error.isError
         )
-        if (error.isNotEmpty()) {
-            ValidationErrorText(text = error)
+        if (error.isError) {
+            ValidationErrorText(text = error.message)
         }
     }
 }
@@ -139,7 +192,7 @@ fun PasswordView(
     text: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    error: String = ""
+    error: Error,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -175,13 +228,14 @@ fun PasswordView(
                 backgroundColor = MaterialTheme.colors.surface,
                 focusedIndicatorColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.high),
             ),
-            isError = error.isNotEmpty()
+            isError = error.isError
         )
-        if (error.isNotEmpty()) {
-            ValidationErrorText(text = error)
+        if (error.isError) {
+            ValidationErrorText(text = error.message)
         }
     }
 }
+
 
 @Composable
 fun ValidationErrorText(text: String) {
@@ -191,15 +245,4 @@ fun ValidationErrorText(text: String) {
         style = MaterialTheme.typography.caption,
         modifier = Modifier.padding(start = MaterialTheme.spacing.medium, top = 0.dp)
     )
-}
-
-@Composable
-fun SignInBtn(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.height(48.dp),
-        shape = RectangleShape
-    ) {
-        Text(text = stringResource(R.string.signIn))
-    }
 }

@@ -6,8 +6,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 
+
 class MobileNumberTransformer {
-    private val phoneNumberOffsetTranslator = object : OffsetMapping {
+    private val phoneNumberOffsetTranslator = object: OffsetMapping {
         override fun originalToTransformed(offset: Int): Int {
             if (offset == 0) return 0
             if (offset <= 2) return offset + 3
@@ -26,6 +27,7 @@ class MobileNumberTransformer {
             return 10
         }
     }
+
     fun transformNumber(number: AnnotatedString): TransformedText
     {
         val trimmed =
