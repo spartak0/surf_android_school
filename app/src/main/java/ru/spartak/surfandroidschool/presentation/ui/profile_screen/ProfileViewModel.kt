@@ -34,13 +34,13 @@ class ProfileViewModel @Inject constructor(
 
     }
 
-    fun logout() {
-        Log.d("AAA", "logout: В логауте")
+    fun logout(onSuccess: ()->Unit, onError:(String?)->Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.logout().collect { state ->
-                run {
-                    Log.d("AAA", "logout: ПРИШЛО ИЗ ФЛОУ $state")
-                    _logoutState.value = state
+                when(state){
+                    is NetworkResult.Success-> onSuccess()
+                    is NetworkResult.Error -> onError(state.message)
+                    else -> {}
                 }
             }
         }

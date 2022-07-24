@@ -22,10 +22,12 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.NetworkResult
 import ru.spartak.surfandroidschool.presentation.ui.detail.BottomBtn
@@ -37,27 +39,10 @@ import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(),navController: NavHostController) {
+fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(), externalNavController: NavHostController, internalNavHostController: NavHostController) {
 
     val user = viewModel.user.collectAsState()
     val logoutState = viewModel.logoutState.collectAsState()
-
-    when (logoutState.value) {
-        is NetworkResult.Success -> {
-            navController.navigate(ExternalScreen.LoginScreen.route){
-                launchSingleTop=true
-                //todo фикс и тут
-            }
-            Log.d("AAA", "ProfileScreen: УДАЧНО")
-        }
-        is NetworkResult.Error -> {
-            Log.d("AAA", "ProfileScreen: НЕ УДАЧНО")
-        }
-        is NetworkResult.Throw -> {
-            Log.d("AAA", "ProfileScreen: ${logoutState.value.message}")
-        }
-        else -> {}
-    }
 
     viewModel.fetchUser()
     DefaultTheme {
@@ -149,7 +134,17 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(),navController: N
                         dismissButtonText = "НЕТ",
                         confirmRequest = {
                             showDialog.value = false
-                            viewModel.logout()
+                            viewModel.logout(
+                                onSuccess = {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        externalNavController.navigate(ExternalScreen.LoginScreen.route) {
+                                            popUpTo(0)
+                                        }
+                                    }
+                                },
+                                onError = {
+                                    Log.d("AAA", "ProfileScreen: $it")
+                                })
                         },
                         confirmButtonText = "ДА",
                         text = "Вы точно хотите выйти из приложения?"

@@ -4,4 +4,5 @@
     <string name="entry">Вход</string>
     <string name="signIn">Войти</string>
     <string name="password">Пароль</string>
+    <string name="myFavorite">Мои избранные</string>
 </resources>

@@ -1,6 +1,8 @@
 package ru.spartak.surfandroidschool.data.repository
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import ru.spartak.surfandroidschool.data.database.user_database.dao.UserDao
 import ru.spartak.surfandroidschool.data.network.api.RetrofitApi
@@ -14,6 +16,7 @@ import ru.spartak.surfandroidschool.utils.Constants
 
 class UserRepositoryImpl(
     private val userDao: UserDao,
+    private val nukePictureTable: () -> Unit,
     private val userMapper: UserMapper,
     private val userSharedPreferenceHelper: UserSharedPreferenceHelper,
     private val api: RetrofitApi,
@@ -21,22 +24,18 @@ class UserRepositoryImpl(
     override suspend fun login(login: String, password: String): Flow<NetworkResult<UserData>> =
         flow {
             emit(NetworkResult.Loading())
-            try {
-                val response = api.login(LoginRequest(login, password))
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        userSharedPreferenceHelper.saveData(Constants.USER_TOKEN, it.token)
-                        userSharedPreferenceHelper.saveData(
-                            Constants.CURRENT_USER_ID,
-                            it.user_info.id
-                        )
-                        emit(NetworkResult.Success(userMapper.dtoToDomain(it.user_info)))
-                    }
-                } else {
-                    emit(NetworkResult.Error(response.message()))
+            val response = api.login(LoginRequest(login, password))
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    userSharedPreferenceHelper.saveData(Constants.USER_TOKEN, it.token)
+                    userSharedPreferenceHelper.saveData(
+                        Constants.CURRENT_USER_ID,
+                        it.user_info.id
+                    )
+                    emit(NetworkResult.Success(userMapper.dtoToDomain(it.user_info)))
                 }
-            } catch (t: Throwable) {
-                emit(NetworkResult.Throw(t.message))
+            } else {
+                emit(NetworkResult.Error(response.message()))
             }
         }
 
@@ -52,6 +51,7 @@ class UserRepositoryImpl(
                 if (currentUserId != null) {
                     userDao.deleteUser(currentUserId)
                 }
+                nukePictureTable()
                 userSharedPreferenceHelper.clear()
             } else emit(NetworkResult.Error(response.message()))
         } catch (t: Throwable) {
@@ -61,7 +61,11 @@ class UserRepositoryImpl(
 
     override suspend fun getCurrentUser(): UserData? {
         val currentUserId = userSharedPreferenceHelper.loadData(Constants.CURRENT_USER_ID)
-        val currentUser = currentUserId?.let { userMapper.entityToDomain(userDao.getUser(it)) }
+        Log.d("AAA", "getCurrentUser: $currentUserId")
+        val currentUser = currentUserId?.let {
+            userDao.getUser(it)
+                ?.let { userDao -> userMapper.entityToDomain(userDao) }
+        }
         return currentUser
     }
 

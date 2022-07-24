@@ -12,8 +12,17 @@ interface PictureDao {
     @Query("SELECT * FROM picture_table")
     suspend fun fetchPictureList(): List<PictureEntity>
 
+    @Query("SELECT * FROM picture_table WHERE isFavorite=1")
+    suspend fun fetchFavoritePictureList(): List<PictureEntity>
+
+    @Query ("SELECT * FROM picture_table WHERE id=:id")
+    suspend fun getPictureById(id:String):PictureEntity
+
     @Insert
     suspend fun addPicture(picture: PictureEntity)
+
+    @Query("DELETE FROM picture_table")
+    fun nukeTable()
 
     @Update
     suspend fun updatePicture(picture: PictureEntity)

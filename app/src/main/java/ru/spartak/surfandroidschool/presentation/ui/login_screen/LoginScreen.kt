@@ -1,6 +1,7 @@
 package ru.spartak.surfandroidschool.presentation.ui.login_screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,26 +46,6 @@ fun LoginScreen(viewModel: LoginScreenViewModel = hiltViewModel(), navController
 
     val loginState = viewModel.loginState.collectAsState()
     val scaffoldState = rememberScaffoldState()
-
-    when (loginState.value) {
-        is NetworkResult.Success -> {
-            navController.navigate(ExternalScreen.MainScreen.route) {
-                launchSingleTop = true
-                //todo fix
-            }
-            loginState.value.data?.let { viewModel.addUserInDatabase(it) }
-        }
-        is NetworkResult.Error -> {
-            snackbarController.getScope().launch(Dispatchers.IO) {
-                snackbarController.showSnackbar(
-                    scaffoldState = scaffoldState,
-                    message = "Введён неправильный логин или пароль",
-                )
-            }
-        }
-        else -> {}
-    }
-
 
     DefaultTheme {
         Scaffold(
@@ -132,8 +113,25 @@ fun LoginScreen(viewModel: LoginScreenViewModel = hiltViewModel(), navController
                     verificationPassword = viewModel.validationTestPassword(textPassword)
                     if (!verificationLogin.isError && !verificationPassword.isError) viewModel.login(
                         phone = textLogin,
-                        password = textPassword
-                    )
+                        password = textPassword,
+                        onSuccess = {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                navController.navigate(ExternalScreen.MainScreen.route) {
+                                    popUpTo(0)
+                                }
+                            }
+                        },
+                        onError = {
+                            snackbarController.getScope().launch(Dispatchers.IO) {
+                                snackbarController.showSnackbar(
+                                    scaffoldState = scaffoldState,
+                                    message = "Введён неправильный логин или пароль",
+                                )
+                            }
+                        },
+                        onThrow = {
+                            Log.d("AAA", "LoginScreen: Throw $it")
+                        })
                 }
             }
         }

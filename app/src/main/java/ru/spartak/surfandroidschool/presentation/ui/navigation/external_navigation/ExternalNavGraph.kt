@@ -8,19 +8,23 @@ import androidx.navigation.compose.composable
 import ru.spartak.surfandroidschool.presentation.ui.login_screen.LoginScreen
 import ru.spartak.surfandroidschool.presentation.ui.login_screen.LoginScreenViewModel
 import ru.spartak.surfandroidschool.presentation.ui.main_screen.MainScreen
+import ru.spartak.surfandroidschool.presentation.ui.splash_screen.SplashScreen
 
 
 @Composable
-fun ExternalNavGraph(navController: NavHostController) {
+fun ExternalNavGraph(navController: NavHostController, startDestination:String) {
     NavHost(
         navController = navController,
-        startDestination = ExternalScreen.LoginScreen.route
+        startDestination = startDestination
     ) {
         composable(route = ExternalScreen.LoginScreen.route) {
             LoginScreen(navController = navController)
         }
         composable(route = ExternalScreen.MainScreen.route) {
             MainScreen(externalNavController = navController)
+        }
+        composable(route = ExternalScreen.SplashScreen.route) {
+            SplashScreen()
         }
     }
 }

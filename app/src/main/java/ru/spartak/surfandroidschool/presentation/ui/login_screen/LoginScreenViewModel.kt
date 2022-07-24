@@ -1,6 +1,5 @@
 package ru.spartak.surfandroidschool.presentation.ui.login_screen
 
-import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,12 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.spartak.surfandroidschool.domain.UserSharedPreferenceHelper
 import ru.spartak.surfandroidschool.domain.model.NetworkResult
 import ru.spartak.surfandroidschool.domain.model.UserData
 import ru.spartak.surfandroidschool.domain.repository.UserRepository
 import ru.spartak.surfandroidschool.presentation.ui.Error
-import ru.spartak.surfandroidschool.utils.Constants
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,11 +40,23 @@ class LoginScreenViewModel @Inject constructor(
         return Error(false, "")
     }
 
-    fun login(phone: String, password: String) {
+    fun login(
+        phone: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit,
+        onThrow: (String?) -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.login("+7$phone", password).collect { state ->
-                run {
-                    _loginState.value = state
+                when (state) {
+                    is NetworkResult.Success -> {
+                        onSuccess()
+                        state.data?.let { addUserInDatabase(it) }
+                    }
+                    is NetworkResult.Error -> onError()
+                    is NetworkResult.Throw -> onThrow(state.message)
+                    else -> {}
                 }
             }
         }

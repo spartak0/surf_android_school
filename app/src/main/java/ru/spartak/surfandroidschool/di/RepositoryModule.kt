@@ -23,11 +23,18 @@ object RepositoryModule {
     @Singleton
     fun providesUserRepository(
         userDao: UserDao,
+        pictureDao: PictureDao,
         userMapper: UserMapper,
         api: RetrofitApi,
         sharedPreferenceHelper: UserSharedPreferenceHelper
     ): UserRepository {
-        return UserRepositoryImpl(userDao, userMapper, sharedPreferenceHelper, api)
+        return UserRepositoryImpl(
+            userDao,
+            { pictureDao.nukeTable() },
+            userMapper,
+            sharedPreferenceHelper,
+            api
+        )
     }
 
     @Provides

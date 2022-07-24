@@ -10,7 +10,7 @@ interface UserDao {
     suspend fun addUser(userEntity: UserEntity)
 
     @Query("SELECT * FROM user_table WHERE id=:id")
-    suspend fun getUser(id: String): UserEntity
+    suspend fun getUser(id: String): UserEntity?
 
     @Update
     suspend fun updateUser(userEntity: UserEntity)

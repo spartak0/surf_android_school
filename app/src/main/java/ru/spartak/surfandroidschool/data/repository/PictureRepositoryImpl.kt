@@ -1,7 +1,5 @@
 package ru.spartak.surfandroidschool.data.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.spartak.surfandroidschool.data.database.picture_database.dao.PictureDao
@@ -21,14 +19,18 @@ class PictureRepositoryImpl(
     private val userSharedPreferenceHelper: UserSharedPreferenceHelper
 ) : PictureRepository {
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override suspend fun fetchPicture(): List<PictureData> {
         return pictureDao.fetchPictureList().stream().map {
             pictureMapper.entityToDomain(it)
         }.collect(Collectors.toList())
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    override suspend fun fetchFavoritePicture(): List<PictureData> {
+        return pictureDao.fetchFavoritePictureList().stream().map {
+            pictureMapper.entityToDomain(it)
+        }.collect(Collectors.toList())
+    }
+
     override suspend fun getPictureFromNetwork(): Flow<NetworkResult<List<PictureData>>> = flow {
         emit(NetworkResult.Loading())
         try {
@@ -51,6 +53,10 @@ class PictureRepositoryImpl(
             t.printStackTrace()
             //emit(NetworkResult.Throw(t.message))
         }
+    }
+
+    override suspend fun getPictureById(id: String): PictureData {
+        return pictureMapper.entityToDomain(pictureDao.getPictureById(id))
     }
 
     override suspend fun updatePicture(picture: PictureData) {

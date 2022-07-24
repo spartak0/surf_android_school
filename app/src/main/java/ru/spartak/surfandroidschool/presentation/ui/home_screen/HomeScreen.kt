@@ -1,6 +1,7 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,6 +32,7 @@ import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
+import ru.spartak.surfandroidschool.presentation.ui.theme.favoriteBtn
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -185,6 +187,7 @@ fun VerticalGrid(items: List<PictureData>, updatePictureInDatabase: (PictureData
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
             top = MaterialTheme.spacing.smallMedium,
+            bottom = MaterialTheme.spacing.smallMedium,
             start = MaterialTheme.spacing.medium,
             end = MaterialTheme.spacing.medium
         ),
@@ -249,13 +252,13 @@ fun Post(pictureData: PictureData, updatePicture: (PictureData) -> Unit) {
 
         },
             modifier = Modifier.constrainAs(like) {
-                top.linkTo(image.top, spacing.smallMedium)
-                end.linkTo(image.end, spacing.smallMedium)
+                top.linkTo(image.top, spacing.small)
+                end.linkTo(image.end, spacing.small)
             }) {
             Icon(
                 painter = painterResource(id = if (isFavorite.value) R.drawable.ic_favorite else R.drawable.ic_not_favorite),
                 contentDescription = "favorite",
-                tint = MaterialTheme.colors.onSurface
+                tint = favoriteBtn
             )
         }
         Text(
