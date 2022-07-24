@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import ru.spartak.surfandroidschool.data.database.user_database.dao.UserDao
 import ru.spartak.surfandroidschool.data.database.user_database.entity.UserEntity
 
-@Database(entities = [UserEntity::class], version = 2)
+@Database(entities = [UserEntity::class], version = 3)
 abstract class UserDatabase:RoomDatabase() {
     abstract fun userDao():UserDao
 }

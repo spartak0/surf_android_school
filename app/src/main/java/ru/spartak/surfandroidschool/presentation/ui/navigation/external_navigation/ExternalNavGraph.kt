@@ -17,11 +17,10 @@ fun ExternalNavGraph(navController: NavHostController) {
         startDestination = ExternalScreen.LoginScreen.route
     ) {
         composable(route = ExternalScreen.LoginScreen.route) {
-            val loginViewModel = hiltViewModel<LoginScreenViewModel>()
-            LoginScreen(loginViewModel, navController)
+            LoginScreen(navController = navController)
         }
         composable(route = ExternalScreen.MainScreen.route) {
-            MainScreen()
+            MainScreen(externalNavController = navController)
         }
     }
 }

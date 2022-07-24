@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +34,7 @@ import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
-fun LoginScreen(viewModel: LoginScreenViewModel = viewModel(), navController: NavController) {
+fun LoginScreen(viewModel: LoginScreenViewModel = hiltViewModel(), navController: NavController) {
     var textLogin by remember { mutableStateOf("") }
     var textPassword by remember { mutableStateOf("") }
 

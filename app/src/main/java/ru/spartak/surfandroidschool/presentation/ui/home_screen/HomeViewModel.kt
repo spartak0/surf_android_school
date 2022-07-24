@@ -1,22 +1,23 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
+import android.app.PictureInPictureParams
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.spartak.surfandroidschool.domain.UserSharedPreferenceHelper
+import ru.spartak.surfandroidschool.domain.model.NetworkResult
 import ru.spartak.surfandroidschool.domain.model.PictureData
-import ru.spartak.surfandroidschool.utils.Constants
+import ru.spartak.surfandroidschool.domain.repository.PictureRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userSharedPreferenceHelper: UserSharedPreferenceHelper
-) :
-    ViewModel() {
-    private var _pictureDataList = MutableStateFlow(mutableListOf<PictureData>())
+    private val pictureRepository: PictureRepository,
+) : ViewModel() {
+    private var _pictureDataList = MutableStateFlow<List<PictureData>>(mutableListOf())
     val pictureDataList: StateFlow<List<PictureData>> = _pictureDataList.asStateFlow()
 
     fun newSearch(searchText: String): List<PictureData> {
@@ -37,17 +38,34 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addPicture() {
-        _pictureDataList.value = mutableListOf<PictureData>(
-        )
+    fun fetchPicture() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val pictureList = pictureRepository.fetchPicture()
+            if (pictureList.isEmpty()) {
+                pictureRepository.getPictureFromNetwork().collect { networkResult ->
+                    when(networkResult){
+                        is NetworkResult.Success -> {
+                            _pictureDataList.value = networkResult.data!!
+                            _pictureDataList.value.forEach {
+                                pictureRepository.addPicture(it)
+                            }
+                        }
+                        is NetworkResult.Error -> Log.d("AAA", "fetchPicture: Error\n${networkResult.message}")
+                        is NetworkResult.Throw -> Log.d("AAA", "fetchPicture: Throw\n${networkResult.message}")
+                        else -> {}
+                    }
+                }
+            }
+            else _pictureDataList.value = pictureList
+
+        }
     }
 
-    fun getToken():String? {
-        return userSharedPreferenceHelper.loadData(Constants.USER_TOKEN)
-    }
-
-    fun updatePicture() {
-        //todo update picture in database
+    fun updatePicture(pictureData: PictureData) {
+        Log.d("AAA", "updatePicture: ТУТ $pictureData")
+        viewModelScope.launch(Dispatchers.IO) {
+            pictureRepository.updatePicture(pictureData)
+        }
     }
 
 }

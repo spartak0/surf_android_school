@@ -14,18 +14,21 @@ import ru.spartak.surfandroidschool.presentation.ui.home_screen.HomeViewModel
 import ru.spartak.surfandroidschool.presentation.ui.profile_screen.ProfileScreen
 
 @Composable
-fun BottomNavGraph(navController: NavHostController, bottomPaddingValues: Dp) {
+fun BottomNavGraph(
+    navController: NavHostController,
+    externalNavHostController: NavHostController,
+    bottomPaddingValues: Dp
+) {
     NavHost(
         navController = navController,
         startDestination = BottomBarItemScreen.Home.route,
         modifier = Modifier.padding(bottom = bottomPaddingValues)
     ) {
         composable(route = BottomBarItemScreen.Home.route) {
-            val viewModel = hiltViewModel<HomeViewModel>()
-            HomeScreen(viewModel)
+            HomeScreen()
         }
         composable(route = BottomBarItemScreen.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(navController = externalNavHostController)
         }
         composable(route = BottomBarItemScreen.Favorite.route) {
             FavoriteScreen()

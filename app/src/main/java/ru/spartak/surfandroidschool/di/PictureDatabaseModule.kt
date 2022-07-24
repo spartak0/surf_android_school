@@ -23,7 +23,7 @@ object PictureDatabaseModule {
             appContext,
             PictureDatabase::class.java,
             "picture_database"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides

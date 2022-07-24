@@ -1,5 +1,5 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
-enum class SearchState {
+enum class SearchBarState {
     Active,Dormant
 }

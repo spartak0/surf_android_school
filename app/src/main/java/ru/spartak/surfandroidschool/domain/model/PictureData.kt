@@ -5,6 +5,6 @@ data class PictureData(
     val title: String,
     val content: String,
     val photoUrl: String,
-    val publicationDate: Int,
+    val publicationDate: Long,
     val isFavorite:Boolean,
 )

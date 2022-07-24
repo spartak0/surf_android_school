@@ -1,6 +1,7 @@
 package ru.spartak.surfandroidschool.presentation.ui.profile_screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,19 +22,44 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
+import com.skydoves.landscapist.glide.GlideImage
 import ru.spartak.surfandroidschool.R
+import ru.spartak.surfandroidschool.domain.model.NetworkResult
 import ru.spartak.surfandroidschool.presentation.ui.detail.BottomBtn
 import ru.spartak.surfandroidschool.presentation.ui.detail.Dialog
+import ru.spartak.surfandroidschool.presentation.ui.navigation.external_navigation.ExternalScreen
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.montserratFontFamily
 import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(),navController: NavHostController) {
 
     val user = viewModel.user.collectAsState()
+    val logoutState = viewModel.logoutState.collectAsState()
 
+    when (logoutState.value) {
+        is NetworkResult.Success -> {
+            navController.navigate(ExternalScreen.LoginScreen.route){
+                launchSingleTop=true
+                //todo фикс и тут
+            }
+            Log.d("AAA", "ProfileScreen: УДАЧНО")
+        }
+        is NetworkResult.Error -> {
+            Log.d("AAA", "ProfileScreen: НЕ УДАЧНО")
+        }
+        is NetworkResult.Throw -> {
+            Log.d("AAA", "ProfileScreen: ${logoutState.value.message}")
+        }
+        else -> {}
+    }
+
+    viewModel.fetchUser()
     DefaultTheme {
         Scaffold(topBar = { TopBarProfile() }) {
             ConstraintLayout(
@@ -44,7 +70,9 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                 val spacing = MaterialTheme.spacing
                 val (imageProfile, fullName, status, city, number, email, signOutBtn) = createRefs()
 
-                ImageProfile(
+                GlideImage(
+                    imageModel = user.value.avatar,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(128.dp)
                         .constrainAs(imageProfile) {
@@ -57,11 +85,11 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                     lastname = user.value.lastName,
                     modifier = Modifier.constrainAs(fullName) {
                         start.linkTo(imageProfile.end, spacing.medium)
+                        end.linkTo(parent.end)
                         top.linkTo(parent.top, spacing.smallMedium)
                         width = Dimension.fillToConstraints
                     })
-
-                Status(text = "“Светлое будущее живет в вечности”",
+                Status(text = "“${user.value.about}”",
                     modifier = Modifier.constrainAs(status) {
                         top.linkTo(fullName.bottom, spacing.smallMediumMedium)
                         start.linkTo(imageProfile.end, spacing.medium)
@@ -79,7 +107,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                             end.linkTo(parent.end)
                         })
                 ItemInfoCard(
-                    text = "9525500322",
+                    text = user.value.phone,
                     label = "Телефон",
                     isNumber = true,
                     modifier = Modifier
@@ -110,7 +138,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                             width = Dimension.fillToConstraints
                             height = Dimension.value(48.dp)
                         },
-                    isLoading = false
+                    isLoading = logoutState.value is NetworkResult.Loading
                 ) {
                     showDialog.value = true
                 }
@@ -119,7 +147,10 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                         showDialogState = showDialog.value,
                         dismissRequest = { showDialog.value = false },
                         dismissButtonText = "НЕТ",
-                        confirmRequest = { /*TODO*/ },
+                        confirmRequest = {
+                            showDialog.value = false
+                            viewModel.logout()
+                        },
                         confirmButtonText = "ДА",
                         text = "Вы точно хотите выйти из приложения?"
                     )
@@ -153,9 +184,14 @@ fun ItemInfoCard(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = if (isNumber) "+7 (${text.substring(0, 3)}) ${text.substring(3, 6)} ${
-                    text.substring(6, 8)
-                } ${text.substring(8, 10)}" else text,
+                text = if (isNumber && text.length == 12) "${
+                    text.substring(
+                        0,
+                        2
+                    )
+                } (${text.substring(2, 5)}) ${text.substring(5, 8)} ${
+                    text.substring(8, 10)
+                } ${text.substring(10, 12)}" else text,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W400,
                 color = MaterialTheme.colors.primary,

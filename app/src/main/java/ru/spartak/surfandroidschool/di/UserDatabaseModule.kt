@@ -23,7 +23,7 @@ object UserDatabaseModule {
             appContext,
             UserDatabase::class.java,
             "user_database"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides

@@ -20,4 +20,8 @@ class UserSharedPreferenceHelper @Inject constructor(@ApplicationContext context
         return sharedPreferences.getString(key, null)
     }
 
+    fun clear() {
+        editor.clear().apply()
+    }
+
 }

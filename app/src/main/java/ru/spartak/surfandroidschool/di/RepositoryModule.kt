@@ -35,8 +35,8 @@ object RepositoryModule {
     fun providesPictureRepository(
         pictureDao: PictureDao,
         pictureMapper: PictureMapper,
-        api: RetrofitApi
+        api: RetrofitApi, userSharedPreferenceHelper: UserSharedPreferenceHelper
     ): PictureRepository {
-        return PictureRepositoryImpl(pictureDao, pictureMapper, api)
+        return PictureRepositoryImpl(pictureDao, pictureMapper, api, userSharedPreferenceHelper)
     }
 }

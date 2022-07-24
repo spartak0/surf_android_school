@@ -5,5 +5,5 @@ data class Picture(
     val title: String,
     val content: String,
     val photoUrl:String,
-    val publicationDate:Int
+    val publicationDate:Long
 )

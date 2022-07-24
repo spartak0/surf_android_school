@@ -47,7 +47,6 @@ class LoginScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.login("+7$phone", password).collect { state ->
                 run {
-                    Log.d("AAA", "login: EЩЁ ПРИШЛО")
                     _loginState.value = state
                 }
             }

@@ -1,7 +1,6 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,7 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.skydoves.landscapist.glide.GlideImage
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
@@ -34,18 +34,20 @@ import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
-    val searchState = remember { mutableStateOf(SearchState.Dormant) }
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+    val searchBarState = remember { mutableStateOf(SearchBarState.Dormant) }
     val textSearchBar = remember { mutableStateOf("") }
     val postList by viewModel.pictureDataList.collectAsState()
+
+    viewModel.fetchPicture()
 
     DefaultTheme {
         Scaffold(topBar = {
             HomeTopAppBar(searchFunction = {
                 viewModel.newSearch(textSearchBar.value)
-            }, searchText = textSearchBar, searchState = searchState)
+            }, searchText = textSearchBar, searchBarState = searchBarState)
         }) {
-            if (searchState.value == SearchState.Active) {
+            if (searchBarState.value == SearchBarState.Active) {
                 if (textSearchBar.value.isEmpty()) {
                     FullscreenIconHint(
                         iconId = R.drawable.ic_magnifyingglass,
@@ -61,12 +63,16 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         )
                     } else VerticalGrid(
                         items = searchedList,
-                        updatePictureInDatabase = { viewModel.updatePicture() })
+                        updatePictureInDatabase = { pictureData ->
+                            viewModel.updatePicture(
+                                pictureData
+                            )
+                        })
                 }
             } else VerticalGrid(
                 items = postList,
-                updatePictureInDatabase = { viewModel.updatePicture() })
-
+                updatePictureInDatabase = { pictureData -> viewModel.updatePicture(pictureData) }
+            )
         }
     }
 }
@@ -93,14 +99,14 @@ fun FullscreenIconHint(iconId: Int, textHint: String) {
 
 @Composable
 fun HomeTopAppBar(
-    searchState: MutableState<SearchState>,
+    searchBarState: MutableState<SearchBarState>,
     searchText: MutableState<String>,
     searchFunction: () -> Unit
 ) {
-    if (searchState.value == SearchState.Dormant)
-        DefaultTopBar(searchState = searchState, searchText = searchText)
+    if (searchBarState.value == SearchBarState.Dormant)
+        DefaultTopBar(searchBarState = searchBarState, searchText = searchText)
     else SearchTopBar(
-        searchState = searchState,
+        searchBarState = searchBarState,
         searchFunction = searchFunction,
         searchText = searchText
     )
@@ -108,7 +114,7 @@ fun HomeTopAppBar(
 
 @Composable
 fun SearchTopBar(
-    searchState: MutableState<SearchState>,
+    searchBarState: MutableState<SearchBarState>,
     searchText: MutableState<String>,
     searchFunction: () -> Unit
 ) {
@@ -119,7 +125,7 @@ fun SearchTopBar(
         elevation = 0.dp,
     ) {
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.medium))
-        IconButton(onClick = { searchState.value = SearchState.Dormant }) {
+        IconButton(onClick = { searchBarState.value = SearchBarState.Dormant }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_backarrow),
                 contentDescription = "back arrow search",
@@ -174,7 +180,7 @@ fun SearchTopBar(
 }
 
 @Composable
-fun VerticalGrid(items: List<PictureData>, updatePictureInDatabase: () -> Unit) {
+fun VerticalGrid(items: List<PictureData>, updatePictureInDatabase: (PictureData) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
@@ -192,7 +198,7 @@ fun VerticalGrid(items: List<PictureData>, updatePictureInDatabase: () -> Unit) 
 }
 
 @Composable
-fun DefaultTopBar(searchState: MutableState<SearchState>, searchText: MutableState<String>) {
+fun DefaultTopBar(searchBarState: MutableState<SearchBarState>, searchText: MutableState<String>) {
     TopAppBar(
         backgroundColor = MaterialTheme.colors.background,
         elevation = 0.dp,
@@ -207,7 +213,7 @@ fun DefaultTopBar(searchState: MutableState<SearchState>, searchText: MutableSta
             IconButton(onClick = {
                 searchText.value = ""
 
-                searchState.value = SearchState.Active
+                searchBarState.value = SearchBarState.Active
             }, modifier = Modifier.padding(end = 16.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_search),
@@ -219,13 +225,13 @@ fun DefaultTopBar(searchState: MutableState<SearchState>, searchText: MutableSta
 }
 
 @Composable
-fun Post(pictureData: PictureData, updatePicture: () -> Unit) {
+fun Post(pictureData: PictureData, updatePicture: (PictureData) -> Unit) {
     ConstraintLayout {
         val (image, like, title) = createRefs()
         val spacing = MaterialTheme.spacing
         val isFavorite = remember { mutableStateOf(pictureData.isFavorite) }
-        Image(
-            painter = painterResource(id = R.drawable.ic_profile),
+        GlideImage(
+            imageModel = pictureData.photoUrl,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .aspectRatio(0.72F)
@@ -235,11 +241,11 @@ fun Post(pictureData: PictureData, updatePicture: () -> Unit) {
                     end.linkTo(parent.end)
                     width = Dimension.fillToConstraints
                 },
-            contentDescription = "image on post"
         )
         IconButton(onClick = {
             isFavorite.value = !isFavorite.value
-            updatePicture()
+            val newPictureData = pictureData.copy(isFavorite = isFavorite.value)
+            updatePicture(newPictureData)
 
         },
             modifier = Modifier.constrainAs(like) {

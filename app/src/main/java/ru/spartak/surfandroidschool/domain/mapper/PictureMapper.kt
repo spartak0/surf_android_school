@@ -11,11 +11,25 @@ class PictureMapper : Mapper<PictureData, Picture, PictureEntity> {
     }
 
     override fun entityToDomain(entity: PictureEntity): PictureData {
-        return PictureData(entity.id, entity.title, entity.content, entity.photoUrl, entity.publicationDate, entity.isFavorite)
+        return PictureData(
+            entity.id,
+            entity.title,
+            entity.content,
+            entity.photoUrl,
+            entity.publicationDate,
+            entity.isFavorite
+        )
     }
 
     override fun domainToEntity(domain: PictureData): PictureEntity {
-        TODO("Not yet implemented")
+        return PictureEntity(
+            domain.id,
+            domain.title,
+            domain.content,
+            domain.photoUrl,
+            domain.publicationDate,
+            domain.isFavorite
+        )
     }
 
 }

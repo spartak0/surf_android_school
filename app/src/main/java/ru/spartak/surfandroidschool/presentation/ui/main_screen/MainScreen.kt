@@ -1,7 +1,6 @@
 package ru.spartak.surfandroidschool.presentation.ui.main_screen
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.*
@@ -16,14 +15,13 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import ru.spartak.surfandroidschool.domain.UserSharedPreferenceHelper
 import ru.spartak.surfandroidschool.presentation.ui.navigation.bottom_navigation.BottomBarItemScreen
 import ru.spartak.surfandroidschool.presentation.ui.navigation.bottom_navigation.BottomNavGraph
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(externalNavController: NavHostController) {
     val navController = rememberNavController()
     val screens = listOf(
         BottomBarItemScreen.Home,
@@ -39,7 +37,11 @@ fun MainScreen() {
                 )
             }
         ) {
-            BottomNavGraph(navController = navController, it.calculateBottomPadding())
+            BottomNavGraph(
+                navController = navController,
+                externalNavHostController = externalNavController,
+                bottomPaddingValues = it.calculateBottomPadding()
+            )
         }
     }
 }

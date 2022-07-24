@@ -12,11 +12,9 @@ interface RetrofitApi {
     @POST("auth/login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<AuthInfo>
 
-    @Headers("Authorization: Token {token}")
     @POST("auth/logout")
-    suspend fun logout(@Path("token") token: String) : Response<Unit>
+    suspend fun logout(@Header("Authorization") token: String) : Response<Unit>
 
-    @Headers("Authorization: Token {token}")
     @GET("picture")
-    suspend fun getPicture(@Path("token") token: String): Response<List<Picture>>
+    suspend fun getPicture(@Header("Authorization") token: String): Response<List<Picture>>
 }
