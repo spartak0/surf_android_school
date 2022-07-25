@@ -1,5 +1,6 @@
 package ru.spartak.surfandroidschool.presentation.ui.login_screen
 
+import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +27,7 @@ class LoginScreenViewModel @Inject constructor(
         if (login.isEmpty()) return Error(true, "Поле не может быть пустым")
         if (login.length != 10 || !login.isDigitsOnly()) return Error(
             true,
-            "Не верный формат номера телефона"
+            "Неверный формат номера телефона"
         )
         return Error(false, "")
     }
@@ -35,7 +36,7 @@ class LoginScreenViewModel @Inject constructor(
         if (password.isEmpty()) return Error(true, "Поле не может быть пустым")
         if (password.length < 6 || password.length > 255) return Error(
             true,
-            "Не подходящий размер пароля"
+            "Неподходящий размер пароля"
         )
         return Error(false, "")
     }
@@ -44,8 +45,7 @@ class LoginScreenViewModel @Inject constructor(
         phone: String,
         password: String,
         onSuccess: () -> Unit,
-        onError: () -> Unit,
-        onThrow: (String?) -> Unit
+        onError: () -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.login("+7$phone", password).collect { state ->
@@ -55,7 +55,6 @@ class LoginScreenViewModel @Inject constructor(
                         state.data?.let { addUserInDatabase(it) }
                     }
                     is NetworkResult.Error -> onError()
-                    is NetworkResult.Throw -> onThrow(state.message)
                     else -> {}
                 }
             }

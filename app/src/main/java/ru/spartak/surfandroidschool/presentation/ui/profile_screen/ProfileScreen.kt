@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +31,8 @@ import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.NetworkResult
 import ru.spartak.surfandroidschool.presentation.ui.detail.BottomBtn
 import ru.spartak.surfandroidschool.presentation.ui.detail.Dialog
+import ru.spartak.surfandroidschool.presentation.ui.detail.error_snackbar.ErrorSnackbar
+import ru.spartak.surfandroidschool.presentation.ui.detail.error_snackbar.SnackbarController
 import ru.spartak.surfandroidschool.presentation.ui.navigation.external_navigation.ExternalScreen
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.montserratFontFamily
@@ -39,21 +40,32 @@ import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(), externalNavController: NavHostController, internalNavHostController: NavHostController) {
+fun ProfileScreen(
+    viewModel: ProfileViewModel = hiltViewModel(),
+    externalNavController: NavHostController,
+    internalNavHostController: NavHostController
+) {
 
     val user = viewModel.user.collectAsState()
     val logoutState = viewModel.logoutState.collectAsState()
+    val scaffoldState = rememberScaffoldState()
+    val snackbarController = SnackbarController(CoroutineScope(Dispatchers.IO))
 
     viewModel.fetchUser()
     DefaultTheme {
-        Scaffold(topBar = { TopBarProfile() }) {
+        Scaffold(
+            topBar = { TopBarProfile() },
+            scaffoldState = scaffoldState,
+            snackbarHost = {
+                scaffoldState.snackbarHostState
+            }) {
             ConstraintLayout(
                 Modifier
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 val showDialog = remember { mutableStateOf(false) }
                 val spacing = MaterialTheme.spacing
-                val (imageProfile, fullName, status, city, number, email, signOutBtn) = createRefs()
+                val (imageProfile, fullName, status, city, number, email, signOutBtn, bottomViewError) = createRefs()
 
                 GlideImage(
                     imageModel = user.value.avatar,
@@ -127,6 +139,14 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(), externalNavCont
                 ) {
                     showDialog.value = true
                 }
+                ErrorSnackbar(snackbarHostState = scaffoldState.snackbarHostState,
+                    modifier = Modifier.constrainAs(bottomViewError) {
+                        bottom.linkTo(signOutBtn.top, spacing.small)
+                        start.linkTo(parent.start, spacing.small)
+                        end.linkTo(parent.end, spacing.small)
+                        height = Dimension.value(48.dp)
+                        width = Dimension.fillToConstraints
+                    })
                 if (showDialog.value)
                     Dialog(
                         showDialogState = showDialog.value,
@@ -143,12 +163,20 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel(), externalNavCont
                                     }
                                 },
                                 onError = {
-                                    Log.d("AAA", "ProfileScreen: $it")
+                                    Log.d("AAA", "ProfileScreen: aboba")
+                                    snackbarController.getScope().launch(Dispatchers.IO) {
+                                        snackbarController.showSnackbar(
+                                            scaffoldState = scaffoldState,
+                                            message = "Не удалось выйти, попробуйте ещё",
+                                        )
+                                    }
                                 })
                         },
                         confirmButtonText = "ДА",
                         text = "Вы точно хотите выйти из приложения?"
                     )
+
+
             }
 
         }

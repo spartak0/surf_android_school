@@ -51,7 +51,6 @@ class HomeViewModel @Inject constructor(
                             }
                         }
                         is NetworkResult.Error -> Log.d("AAA", "fetchPicture: Error\n${networkResult.message}")
-                        is NetworkResult.Throw -> Log.d("AAA", "fetchPicture: Throw\n${networkResult.message}")
                         else -> {}
                     }
                 }

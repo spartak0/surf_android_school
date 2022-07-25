@@ -24,18 +24,23 @@ class UserRepositoryImpl(
     override suspend fun login(login: String, password: String): Flow<NetworkResult<UserData>> =
         flow {
             emit(NetworkResult.Loading())
-            val response = api.login(LoginRequest(login, password))
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    userSharedPreferenceHelper.saveData(Constants.USER_TOKEN, it.token)
-                    userSharedPreferenceHelper.saveData(
-                        Constants.CURRENT_USER_ID,
-                        it.user_info.id
-                    )
-                    emit(NetworkResult.Success(userMapper.dtoToDomain(it.user_info)))
+            try {
+                val response = api.login(LoginRequest(login, password))
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        userSharedPreferenceHelper.saveData(Constants.USER_TOKEN, it.token)
+                        userSharedPreferenceHelper.saveData(
+                            Constants.CURRENT_USER_ID,
+                            it.user_info.id
+                        )
+                        emit(NetworkResult.Success(userMapper.dtoToDomain(it.user_info)))
+                    }
+                } else {
+                    emit(NetworkResult.Error(response.message()))
                 }
-            } else {
-                emit(NetworkResult.Error(response.message()))
+            }
+            catch (t:Throwable){
+                emit(NetworkResult.Error(t.message))
             }
         }
 
@@ -55,13 +60,14 @@ class UserRepositoryImpl(
                 userSharedPreferenceHelper.clear()
             } else emit(NetworkResult.Error(response.message()))
         } catch (t: Throwable) {
-            emit(NetworkResult.Throw(t.message))
+            println(t.message)
+            println(t.stackTrace)
+            emit(NetworkResult.Error(t.message))
         }
     }
 
     override suspend fun getCurrentUser(): UserData? {
         val currentUserId = userSharedPreferenceHelper.loadData(Constants.CURRENT_USER_ID)
-        Log.d("AAA", "getCurrentUser: $currentUserId")
         val currentUser = currentUserId?.let {
             userDao.getUser(it)
                 ?.let { userDao -> userMapper.entityToDomain(userDao) }

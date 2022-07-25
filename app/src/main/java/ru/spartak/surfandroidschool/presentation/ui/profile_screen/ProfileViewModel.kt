@@ -34,13 +34,21 @@ class ProfileViewModel @Inject constructor(
 
     }
 
-    fun logout(onSuccess: ()->Unit, onError:(String?)->Unit) {
+    fun logout(onSuccess: () -> Unit, onError: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.logout().collect { state ->
-                when(state){
-                    is NetworkResult.Success-> onSuccess()
-                    is NetworkResult.Error -> onError(state.message)
-                    else -> {}
+                when (state) {
+                    is NetworkResult.Success -> {
+                        Log.d("AAA", "logout: success")
+                        onSuccess()
+                    }
+                    is NetworkResult.Error -> {
+                        Log.d("AAA", "logout: error")
+                        onError()
+                    }
+                    else -> {
+                        Log.d("AAA", "logout: else")
+                    }
                 }
             }
         }

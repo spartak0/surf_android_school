@@ -18,7 +18,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -88,14 +87,14 @@ fun LoginScreen(viewModel: LoginScreenViewModel = hiltViewModel(), navController
                     },
                     error = verificationPassword
                 )
-                ErrorSnackbar(snackbarHostState = scaffoldState.snackbarHostState, modifier =
-                Modifier.constrainAs(bottomViewError) {
-                    bottom.linkTo(signInBtn.top, spacing.small)
-                    start.linkTo(parent.start, spacing.small)
-                    end.linkTo(parent.end, spacing.small)
-                    height = Dimension.value(48.dp)
-                    width = Dimension.fillToConstraints
-                })
+                ErrorSnackbar(snackbarHostState = scaffoldState.snackbarHostState,
+                    modifier = Modifier.constrainAs(bottomViewError) {
+                        bottom.linkTo(signInBtn.top, spacing.small)
+                        start.linkTo(parent.start, spacing.small)
+                        end.linkTo(parent.end, spacing.small)
+                        height = Dimension.value(48.dp)
+                        width = Dimension.fillToConstraints
+                    })
 
                 BottomBtn(
                     text = stringResource(id = R.string.signIn),
@@ -128,9 +127,6 @@ fun LoginScreen(viewModel: LoginScreenViewModel = hiltViewModel(), navController
                                     message = "Введён неправильный логин или пароль",
                                 )
                             }
-                        },
-                        onThrow = {
-                            Log.d("AAA", "LoginScreen: Throw $it")
                         })
                 }
             }
