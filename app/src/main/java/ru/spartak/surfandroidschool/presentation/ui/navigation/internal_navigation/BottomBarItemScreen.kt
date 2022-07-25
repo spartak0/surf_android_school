@@ -1,4 +1,4 @@
-package ru.spartak.surfandroidschool.presentation.ui.navigation.bottom_navigation
+package ru.spartak.surfandroidschool.presentation.ui.navigation.internal_navigation
 
 import ru.spartak.surfandroidschool.R
 

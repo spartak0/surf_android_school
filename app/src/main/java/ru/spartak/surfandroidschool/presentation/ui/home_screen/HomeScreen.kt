@@ -1,8 +1,8 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,17 +26,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.skydoves.landscapist.glide.GlideImage
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
+import ru.spartak.surfandroidschool.presentation.ui.navigation.external_navigation.ExternalScreen
+import ru.spartak.surfandroidschool.presentation.ui.navigation.internal_navigation.BottomBarItemScreen
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
-import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 import ru.spartak.surfandroidschool.presentation.ui.theme.favoriteBtn
+import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
+import ru.spartak.surfandroidschool.utils.Constants
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
     val searchBarState = remember { mutableStateOf(SearchBarState.Dormant) }
     val textSearchBar = remember { mutableStateOf("") }
     val postList by viewModel.pictureDataList.collectAsState()
@@ -65,6 +70,16 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                         )
                     } else VerticalGrid(
                         items = searchedList,
+                        postOnClick = { pictureData ->
+                            run {
+                                navController.currentBackStackEntry?.arguments?.putAll(
+                                    bundleOf(
+                                        Constants.DETAIL_ARGUMENTS_KEY to pictureData
+                                    )
+                                )
+                                navController.navigate(ExternalScreen.DetailScreen.route)
+                            }
+                        },
                         updatePictureInDatabase = { pictureData ->
                             viewModel.updatePicture(
                                 pictureData
@@ -73,6 +88,16 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 }
             } else VerticalGrid(
                 items = postList,
+                postOnClick = { pictureData ->
+                    run {
+                        navController.currentBackStackEntry?.arguments?.putAll(
+                            bundleOf(
+                                Constants.DETAIL_ARGUMENTS_KEY to pictureData
+                            )
+                        )
+                        navController.navigate(ExternalScreen.DetailScreen.route)
+                    }
+                },
                 updatePictureInDatabase = { pictureData -> viewModel.updatePicture(pictureData) }
             )
         }
@@ -182,7 +207,11 @@ fun SearchTopBar(
 }
 
 @Composable
-fun VerticalGrid(items: List<PictureData>, updatePictureInDatabase: (PictureData) -> Unit) {
+fun VerticalGrid(
+    items: List<PictureData>,
+    updatePictureInDatabase: (PictureData) -> Unit,
+    postOnClick: (PictureData) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
@@ -195,7 +224,7 @@ fun VerticalGrid(items: List<PictureData>, updatePictureInDatabase: (PictureData
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items) { item ->
-            Post(item, updatePictureInDatabase)
+            Post(item, updatePictureInDatabase, postOnClick)
         }
     }
 }
@@ -228,8 +257,12 @@ fun DefaultTopBar(searchBarState: MutableState<SearchBarState>, searchText: Muta
 }
 
 @Composable
-fun Post(pictureData: PictureData, updatePicture: (PictureData) -> Unit) {
-    ConstraintLayout {
+fun Post(
+    pictureData: PictureData,
+    updatePicture: (PictureData) -> Unit,
+    postOnClick: (PictureData) -> Unit
+) {
+    ConstraintLayout(Modifier.clickable { postOnClick(pictureData) }) {
         val (image, like, title) = createRefs()
         val spacing = MaterialTheme.spacing
         val isFavorite = remember { mutableStateOf(pictureData.isFavorite) }

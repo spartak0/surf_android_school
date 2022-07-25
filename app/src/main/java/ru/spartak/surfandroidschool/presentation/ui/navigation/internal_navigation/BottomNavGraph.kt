@@ -1,4 +1,4 @@
-package ru.spartak.surfandroidschool.presentation.ui.navigation.bottom_navigation
+package ru.spartak.surfandroidschool.presentation.ui.navigation.internal_navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -7,9 +7,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import ru.spartak.surfandroidschool.domain.model.PictureData
+import ru.spartak.surfandroidschool.presentation.ui.detail_screen.DetailScreen
 import ru.spartak.surfandroidschool.presentation.ui.favorite_screen.FavoriteScreen
 import ru.spartak.surfandroidschool.presentation.ui.home_screen.HomeScreen
 import ru.spartak.surfandroidschool.presentation.ui.profile_screen.ProfileScreen
+import ru.spartak.surfandroidschool.utils.Constants
 
 @Composable
 fun BottomNavGraph(
@@ -23,7 +26,7 @@ fun BottomNavGraph(
         modifier = Modifier.padding(bottom = bottomPaddingValues)
     ) {
         composable(route = BottomBarItemScreen.Home.route) {
-            HomeScreen()
+            HomeScreen(navController = externalNavHostController)
         }
         composable(route = BottomBarItemScreen.Profile.route) {
             ProfileScreen(

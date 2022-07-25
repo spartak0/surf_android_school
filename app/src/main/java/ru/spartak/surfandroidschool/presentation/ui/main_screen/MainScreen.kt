@@ -15,8 +15,8 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import ru.spartak.surfandroidschool.presentation.ui.navigation.bottom_navigation.BottomBarItemScreen
-import ru.spartak.surfandroidschool.presentation.ui.navigation.bottom_navigation.BottomNavGraph
+import ru.spartak.surfandroidschool.presentation.ui.navigation.internal_navigation.BottomBarItemScreen
+import ru.spartak.surfandroidschool.presentation.ui.navigation.internal_navigation.BottomNavGraph
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
