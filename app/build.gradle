@@ -94,4 +94,6 @@ dependencies {
     //glide
     implementation "com.github.skydoves:landscapist-glide:1.5.3"
 
+    //swipe refresh
+
 }

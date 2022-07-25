@@ -6,7 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.spartak.surfandroidschool.data.SyncUpManager
+import ru.spartak.surfandroidschool.data.database.picture_database.dao.PictureDao
 import ru.spartak.surfandroidschool.data.network.api.RetrofitApi
+import ru.spartak.surfandroidschool.domain.mapper.PictureMapper
 import javax.inject.Singleton
 
 @Module

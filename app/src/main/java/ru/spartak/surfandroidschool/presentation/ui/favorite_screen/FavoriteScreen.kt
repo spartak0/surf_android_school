@@ -1,14 +1,15 @@
 package ru.spartak.surfandroidschool.presentation.ui.favorite_screen
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -24,35 +25,40 @@ import com.skydoves.landscapist.glide.GlideImage
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
 import ru.spartak.surfandroidschool.presentation.ui.detail.Dialog
+import ru.spartak.surfandroidschool.presentation.ui.home_screen.FullscreenIconHint
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.favoriteBtn
 import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel()) {
-    val showDialog= remember{mutableStateOf(Pair(false, PictureData()))}
+    val showDialog = remember { mutableStateOf(Pair(false, PictureData())) }
     val favoritePictureList = viewModel.favoritePictureList.collectAsState()
     viewModel.fetchFavoritePicture()
 
     DefaultTheme {
         Scaffold(topBar = { FavoriteTopBar() }) {
-            VerticalList(
+            if (favoritePictureList.value.isEmpty())
+                FullscreenIconHint(
+                    iconId = R.drawable.ic_sadsmiley,
+                    textHint = "Пусто"
+                )
+            else VerticalList(
                 items = favoritePictureList.value,
                 dialogState = showDialog,
             )
             if (showDialog.value.first)
                 Dialog(
                     showDialogState = showDialog.value.first,
-                    dismissRequest = { showDialog.value = Pair(false,PictureData()) },
+                    dismissRequest = { showDialog.value = Pair(false, PictureData()) },
                     dismissButtonText = "НЕТ",
                     confirmRequest = {
                         val newPictureValue = showDialog.value.second.copy(isFavorite = false)
                         viewModel.updatePicture(newPictureValue)
-                        showDialog.value = Pair(false,PictureData())
+                        showDialog.value = Pair(false, PictureData())
                     },
                     confirmButtonText = "ДА",
                     text = "Вы точно хотите удалить из избранного?"
@@ -73,7 +79,7 @@ fun FavoriteTopBar() {
 }
 
 @Composable
-fun VerticalList(items: List<PictureData>, dialogState: MutableState<Pair<Boolean,PictureData>>) {
+fun VerticalList(items: List<PictureData>, dialogState: MutableState<Pair<Boolean, PictureData>>) {
     LazyColumn(
         contentPadding = PaddingValues(
             vertical = MaterialTheme.spacing.smallMedium,
@@ -82,15 +88,15 @@ fun VerticalList(items: List<PictureData>, dialogState: MutableState<Pair<Boolea
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
         items(items = items) { item ->
-            Post(item,dialogState)
+            Post(item, dialogState)
         }
     }
 }
 
 @Composable
-fun Post(pictureData: PictureData, dialogState: MutableState<Pair<Boolean,PictureData>>) {
+fun Post(pictureData: PictureData, dialogState: MutableState<Pair<Boolean, PictureData>>) {
     ConstraintLayout {
-        val (image, like, title,content,date) = createRefs()
+        val (image, like, title, content, date) = createRefs()
         val spacing = MaterialTheme.spacing
         GlideImage(
             imageModel = pictureData.photoUrl,
@@ -130,11 +136,11 @@ fun Post(pictureData: PictureData, dialogState: MutableState<Pair<Boolean,Pictur
             fontWeight = FontWeight.W400,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            modifier = Modifier.constrainAs(content){
+            modifier = Modifier.constrainAs(content) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 top.linkTo(title.bottom)
-                width=Dimension.fillToConstraints
+                width = Dimension.fillToConstraints
             }
         )
         Text(
@@ -142,8 +148,8 @@ fun Post(pictureData: PictureData, dialogState: MutableState<Pair<Boolean,Pictur
             style = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.W500),
             color = MaterialTheme.colors.onSurface,
             maxLines = 1,
-            modifier = Modifier.constrainAs(date){
-                top.linkTo(image.bottom,17.dp)
+            modifier = Modifier.constrainAs(date) {
+                top.linkTo(image.bottom, 17.dp)
                 end.linkTo(parent.end)
             }
         )

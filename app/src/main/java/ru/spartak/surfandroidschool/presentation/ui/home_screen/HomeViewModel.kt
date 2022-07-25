@@ -1,21 +1,24 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
-import android.app.PictureInPictureParams
-import android.util.Log
+import android.content.Context
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.spartak.surfandroidschool.domain.model.NetworkResult
 import ru.spartak.surfandroidschool.domain.model.PictureData
 import ru.spartak.surfandroidschool.domain.repository.PictureRepository
+import ru.spartak.surfandroidschool.utils.checkForInternet
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val pictureRepository: PictureRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private var _pictureDataList = MutableStateFlow<List<PictureData>>(mutableListOf())
     val pictureDataList: StateFlow<List<PictureData>> = _pictureDataList.asStateFlow()
@@ -33,38 +36,26 @@ class HomeViewModel @Inject constructor(
     private fun searchItems(searchText: String): Flow<PictureData> {
         return flow {
             _pictureDataList.value.forEach {
-                if (it.title.contains(searchText)) emit(it)
+                if (it.title.lowercase().contains(searchText.lowercase())) emit(it)
             }
         }
     }
 
     fun fetchPicture() {
         viewModelScope.launch(Dispatchers.IO) {
-            val pictureList = pictureRepository.fetchPicture()
-            if (pictureList.isEmpty()) {
-                pictureRepository.getPictureFromNetwork().collect { networkResult ->
-                    when(networkResult){
-                        is NetworkResult.Success -> {
-                            _pictureDataList.value = networkResult.data!!
-                            _pictureDataList.value.forEach {
-                                pictureRepository.addPicture(it)
-                            }
-                        }
-                        is NetworkResult.Error -> Log.d("AAA", "fetchPicture: Error\n${networkResult.message}")
-                        else -> {}
-                    }
-                }
-            }
-            else _pictureDataList.value = pictureList
+            _pictureDataList.value =
+                if (checkForInternet(context)) pictureRepository.syncFetchPicture()
+                else pictureRepository.fetchPicture()
 
         }
     }
 
     fun updatePicture(pictureData: PictureData) {
-        Log.d("AAA", "updatePicture: ТУТ $pictureData")
         viewModelScope.launch(Dispatchers.IO) {
             pictureRepository.updatePicture(pictureData)
+            fetchPicture()
         }
     }
 
 }
+

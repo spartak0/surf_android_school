@@ -10,10 +10,10 @@ import ru.spartak.surfandroidschool.data.database.picture_database.entity.Pictur
 interface PictureDao {
 
     @Query("SELECT * FROM picture_table")
-    suspend fun fetchPictureList(): List<PictureEntity>
+    suspend fun getLocalePicture(): List<PictureEntity>
 
     @Query("SELECT * FROM picture_table WHERE isFavorite=1")
-    suspend fun fetchFavoritePictureList(): List<PictureEntity>
+    suspend fun getFavoritePictureList(): List<PictureEntity>
 
     @Query ("SELECT * FROM picture_table WHERE id=:id")
     suspend fun getPictureById(id:String):PictureEntity
@@ -22,8 +22,9 @@ interface PictureDao {
     suspend fun addPicture(picture: PictureEntity)
 
     @Query("DELETE FROM picture_table")
-    fun nukeTable()
+    fun clearTable()
 
     @Update
     suspend fun updatePicture(picture: PictureEntity)
+
 }

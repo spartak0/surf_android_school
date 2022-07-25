@@ -14,9 +14,12 @@
         <entry key="../../../../../layout/compose-model-1657121832726.xml" value="0.24537037037037038" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1325" />
         <entry key="app/src/main/res/drawable/ic_backarrow.xml" value="0.1285" />
+        <entry key="app/src/main/res/drawable/ic_favorite.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_home.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1325" />
         <entry key="app/src/main/res/drawable/ic_magnifyingglass.xml" value="0.1285" />
         <entry key="app/src/main/res/drawable/ic_not_favorite.xml" value="0.1285" />
+        <entry key="app/src/main/res/drawable/ic_profile.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_sadsmiley.xml" value="0.1285" />
         <entry key="app/src/main/res/drawable/ic_search.xml" value="0.1535" />
         <entry key="app/src/main/res/drawable/ic_surf_edu.xml" value="0.219" />

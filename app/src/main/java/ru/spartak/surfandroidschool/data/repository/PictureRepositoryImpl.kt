@@ -2,6 +2,7 @@ package ru.spartak.surfandroidschool.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import ru.spartak.surfandroidschool.data.SyncUpManager
 import ru.spartak.surfandroidschool.data.database.picture_database.dao.PictureDao
 import ru.spartak.surfandroidschool.data.network.api.RetrofitApi
 import ru.spartak.surfandroidschool.domain.UserSharedPreferenceHelper
@@ -16,17 +17,26 @@ class PictureRepositoryImpl(
     private val pictureDao: PictureDao,
     private val pictureMapper: PictureMapper,
     private val api: RetrofitApi,
-    private val userSharedPreferenceHelper: UserSharedPreferenceHelper
+    private val userSharedPreferenceHelper: UserSharedPreferenceHelper,
+    private  val syncUpManager: SyncUpManager
 ) : PictureRepository {
 
-    override suspend fun fetchPicture(): List<PictureData> {
-        return pictureDao.fetchPictureList().stream().map {
+    override suspend fun syncFetchPicture(): List<PictureData> {
+        userSharedPreferenceHelper.loadData(Constants.USER_TOKEN)?.let { syncUpManager.syncAll(it) }
+        return pictureDao.getLocalePicture().stream().map {
             pictureMapper.entityToDomain(it)
         }.collect(Collectors.toList())
     }
 
+    override suspend fun fetchPicture(): List<PictureData> {
+        return pictureDao.getLocalePicture().stream().map {
+            pictureMapper.entityToDomain(it)
+        }.collect(Collectors.toList())
+    }
+
+
     override suspend fun fetchFavoritePicture(): List<PictureData> {
-        return pictureDao.fetchFavoritePictureList().stream().map {
+        return pictureDao.getFavoritePictureList().stream().map {
             pictureMapper.entityToDomain(it)
         }.collect(Collectors.toList())
     }
@@ -50,8 +60,7 @@ class PictureRepositoryImpl(
                 emit(NetworkResult.Error(response.message()))
             }
         } catch (t: Throwable) {
-            t.printStackTrace()
-            //emit(NetworkResult.Throw(t.message))
+            emit(NetworkResult.Error(t.message))
         }
     }
 

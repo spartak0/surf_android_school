@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.spartak.surfandroidschool.data.SyncUpManager
 import ru.spartak.surfandroidschool.data.database.picture_database.dao.PictureDao
 import ru.spartak.surfandroidschool.data.database.user_database.dao.UserDao
 import ru.spartak.surfandroidschool.data.network.api.RetrofitApi
@@ -30,7 +31,7 @@ object RepositoryModule {
     ): UserRepository {
         return UserRepositoryImpl(
             userDao,
-            { pictureDao.nukeTable() },
+            { pictureDao.clearTable() },
             userMapper,
             sharedPreferenceHelper,
             api
@@ -39,11 +40,28 @@ object RepositoryModule {
 
     @Provides
     @Singleton
+    fun provideSyncUpManager(
+        api: RetrofitApi,
+        pictureDao: PictureDao,
+        pictureMapper: PictureMapper
+    ): SyncUpManager {
+        return SyncUpManager(api, pictureDao, pictureMapper)
+    }
+
+    @Provides
+    @Singleton
     fun providesPictureRepository(
         pictureDao: PictureDao,
         pictureMapper: PictureMapper,
-        api: RetrofitApi, userSharedPreferenceHelper: UserSharedPreferenceHelper
+        api: RetrofitApi, userSharedPreferenceHelper: UserSharedPreferenceHelper,
+        syncUpManager: SyncUpManager,
     ): PictureRepository {
-        return PictureRepositoryImpl(pictureDao, pictureMapper, api, userSharedPreferenceHelper)
+        return PictureRepositoryImpl(
+            pictureDao,
+            pictureMapper,
+            api,
+            userSharedPreferenceHelper,
+            syncUpManager
+        )
     }
 }

@@ -33,7 +33,6 @@ import com.skydoves.landscapist.glide.GlideImage
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
 import ru.spartak.surfandroidschool.presentation.ui.navigation.external_navigation.ExternalScreen
-import ru.spartak.surfandroidschool.presentation.ui.navigation.internal_navigation.BottomBarItemScreen
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.favoriteBtn
 import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
@@ -55,54 +54,89 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
             }, searchText = textSearchBar, searchBarState = searchBarState)
         }) {
             if (searchBarState.value == SearchBarState.Active) {
-                if (textSearchBar.value.isEmpty()) {
-                    FullscreenIconHint(
-                        iconId = R.drawable.ic_magnifyingglass,
-                        textHint = "Введите ваш запрос"
-                    )
-                } else {
-                    val searchedList = viewModel.newSearch(textSearchBar.value)
-                    if (searchedList.isEmpty()) {
-                        FullscreenIconHint(
-                            iconId = R.drawable.ic_sadsmiley,
-                            textHint = "По этому запросу нет результатов,\n" +
-                                    "попробуйте другой запрос"
-                        )
-                    } else VerticalGrid(
-                        items = searchedList,
-                        postOnClick = { pictureData ->
-                            run {
-                                navController.currentBackStackEntry?.arguments?.putAll(
-                                    bundleOf(
-                                        Constants.DETAIL_ARGUMENTS_KEY to pictureData
-                                    )
-                                )
-                                navController.navigate(ExternalScreen.DetailScreen.route)
-                            }
-                        },
-                        updatePictureInDatabase = { pictureData ->
-                            viewModel.updatePicture(
-                                pictureData
-                            )
-                        })
-                }
-            } else VerticalGrid(
-                items = postList,
-                postOnClick = { pictureData ->
-                    run {
-                        navController.currentBackStackEntry?.arguments?.putAll(
-                            bundleOf(
-                                Constants.DETAIL_ARGUMENTS_KEY to pictureData
-                            )
-                        )
-                        navController.navigate(ExternalScreen.DetailScreen.route)
-                    }
-                },
-                updatePictureInDatabase = { pictureData -> viewModel.updatePicture(pictureData) }
-            )
+                SearchedScreen(
+                    textSearchBar = textSearchBar,
+                    viewModel = viewModel,
+                    navController = navController
+                )
+            } else {
+                DefaultScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    postList = postList
+                )
+            }
         }
     }
 }
+
+@Composable
+fun DefaultScreen(
+    navController: NavController,
+    viewModel: HomeViewModel,
+    postList: List<PictureData>
+) {
+    if (postList.isEmpty()) {
+        FullscreenIconHint(
+            iconId = R.drawable.ic_sadsmiley,
+            textHint = "Пусто"
+        )
+    }
+    else VerticalGrid(
+        items = postList,
+        postOnClick = { pictureData ->
+            run {
+                navController.currentBackStackEntry?.arguments?.putAll(
+                    bundleOf(
+                        Constants.DETAIL_ARGUMENTS_KEY to pictureData
+                    )
+                )
+                navController.navigate(ExternalScreen.DetailScreen.route)
+            }
+        },
+        updatePost = { pictureData -> viewModel.updatePicture(pictureData) }
+    )
+}
+
+@Composable
+fun SearchedScreen(
+    textSearchBar: MutableState<String>,
+    viewModel: HomeViewModel,
+    navController: NavController,
+) {
+    if (textSearchBar.value.isEmpty()) {
+        FullscreenIconHint(
+            iconId = R.drawable.ic_magnifyingglass,
+            textHint = "Введите ваш запрос"
+        )
+    } else {
+        val searchedList = viewModel.newSearch(textSearchBar.value)
+        if (searchedList.isEmpty()) {
+            FullscreenIconHint(
+                iconId = R.drawable.ic_sadsmiley,
+                textHint = "По этому запросу нет результатов,\n" +
+                        "попробуйте другой запрос"
+            )
+        } else VerticalGrid(
+            items = searchedList,
+            postOnClick = { pictureData ->
+                run {
+                    navController.currentBackStackEntry?.arguments?.putAll(
+                        bundleOf(
+                            Constants.DETAIL_ARGUMENTS_KEY to pictureData
+                        )
+                    )
+                    navController.navigate(ExternalScreen.DetailScreen.route)
+                }
+            },
+            updatePost = { pictureData ->
+                viewModel.updatePicture(
+                    pictureData
+                )
+            })
+    }
+}
+
 
 @Composable
 fun FullscreenIconHint(iconId: Int, textHint: String) {
@@ -209,7 +243,7 @@ fun SearchTopBar(
 @Composable
 fun VerticalGrid(
     items: List<PictureData>,
-    updatePictureInDatabase: (PictureData) -> Unit,
+    updatePost: (PictureData) -> Unit,
     postOnClick: (PictureData) -> Unit
 ) {
     LazyVerticalGrid(
@@ -224,13 +258,16 @@ fun VerticalGrid(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items) { item ->
-            Post(item, updatePictureInDatabase, postOnClick)
+            Post(item, updatePost, postOnClick)
         }
     }
 }
 
 @Composable
-fun DefaultTopBar(searchBarState: MutableState<SearchBarState>, searchText: MutableState<String>) {
+fun DefaultTopBar(
+    searchBarState: MutableState<SearchBarState>,
+    searchText: MutableState<String>
+) {
     TopAppBar(
         backgroundColor = MaterialTheme.colors.background,
         elevation = 0.dp,
@@ -259,7 +296,7 @@ fun DefaultTopBar(searchBarState: MutableState<SearchBarState>, searchText: Muta
 @Composable
 fun Post(
     pictureData: PictureData,
-    updatePicture: (PictureData) -> Unit,
+    updatePost: (PictureData) -> Unit,
     postOnClick: (PictureData) -> Unit
 ) {
     ConstraintLayout(Modifier.clickable { postOnClick(pictureData) }) {
@@ -281,7 +318,7 @@ fun Post(
         IconButton(onClick = {
             isFavorite.value = !isFavorite.value
             val newPictureData = pictureData.copy(isFavorite = isFavorite.value)
-            updatePicture(newPictureData)
+            updatePost(newPictureData)
 
         },
             modifier = Modifier.constrainAs(like) {
