@@ -7,7 +7,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import ru.spartak.surfandroidschool.domain.model.PictureData
+import ru.spartak.surfandroidschool.presentation.ui.detail.error_snackbar.SnackbarController
 import ru.spartak.surfandroidschool.presentation.ui.detail_screen.DetailScreen
 import ru.spartak.surfandroidschool.presentation.ui.favorite_screen.FavoriteScreen
 import ru.spartak.surfandroidschool.presentation.ui.home_screen.HomeScreen

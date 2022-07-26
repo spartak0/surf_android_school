@@ -29,16 +29,24 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
+import ru.spartak.surfandroidschool.presentation.ui.detail.error_snackbar.ErrorSnackbar
+import ru.spartak.surfandroidschool.presentation.ui.detail.error_snackbar.SnackbarController
 import ru.spartak.surfandroidschool.presentation.ui.navigation.external_navigation.ExternalScreen
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.favoriteBtn
 import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
 import ru.spartak.surfandroidschool.utils.Constants
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
     val searchBarState = remember { mutableStateOf(SearchBarState.Dormant) }
@@ -46,13 +54,18 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
     val postList by viewModel.pictureDataList.collectAsState()
 
     viewModel.fetchPicture()
-
+    val scaffoldState = rememberScaffoldState()
+    val snackbarController = SnackbarController(CoroutineScope(Dispatchers.IO))
     DefaultTheme {
-        Scaffold(topBar = {
-            HomeTopAppBar(searchFunction = {
-                viewModel.newSearch(textSearchBar.value)
-            }, searchText = textSearchBar, searchBarState = searchBarState)
-        }) {
+        Scaffold(
+            topBar = {
+                HomeTopAppBar(searchFunction = {
+                    viewModel.newSearch(textSearchBar.value)
+                }, searchText = textSearchBar, searchBarState = searchBarState)
+            },
+            scaffoldState = scaffoldState,
+            snackbarHost = { scaffoldState.snackbarHostState })
+        {
             if (searchBarState.value == SearchBarState.Active) {
                 SearchedScreen(
                     textSearchBar = textSearchBar,
@@ -60,11 +73,33 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                     navController = navController
                 )
             } else {
-                DefaultScreen(
-                    navController = navController,
-                    viewModel = viewModel,
-                    postList = postList
+                SwipeRefresh(state = rememberSwipeRefreshState(isRefreshing = false),
+                    onRefresh = { viewModel.fetchPicture() }) {
+                    DefaultScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                        postList = postList
+                    )
+                }
+
+            }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                ErrorSnackbar(
+                    snackbarHostState = scaffoldState.snackbarHostState,
+                    modifier = Modifier
+                        .height(68.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 10.dp)
                 )
+            }
+            if (!viewModel.checkForInternet()) {
+                snackbarController.getScope().launch(Dispatchers.IO) {
+                    snackbarController.showSnackbar(
+                        scaffoldState = scaffoldState,
+                        message = "Отсутствует интернет-соединение\n Попробуйте позже",
+                    )
+                }
             }
         }
     }
@@ -81,8 +116,7 @@ fun DefaultScreen(
             iconId = R.drawable.ic_sadsmiley,
             textHint = "Пусто"
         )
-    }
-    else VerticalGrid(
+    } else VerticalGrid(
         items = postList,
         postOnClick = { pictureData ->
             run {
@@ -102,7 +136,7 @@ fun DefaultScreen(
 fun SearchedScreen(
     textSearchBar: MutableState<String>,
     viewModel: HomeViewModel,
-    navController: NavController,
+    navController: NavController
 ) {
     if (textSearchBar.value.isEmpty()) {
         FullscreenIconHint(

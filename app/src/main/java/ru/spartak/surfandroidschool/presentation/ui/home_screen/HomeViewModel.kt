@@ -1,6 +1,7 @@
 package ru.spartak.surfandroidschool.presentation.ui.home_screen
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,10 +45,14 @@ class HomeViewModel @Inject constructor(
     fun fetchPicture() {
         viewModelScope.launch(Dispatchers.IO) {
             _pictureDataList.value =
-                if (checkForInternet(context)) pictureRepository.syncFetchPicture()
+                if (checkForInternet()) pictureRepository.syncFetchPicture()
                 else pictureRepository.fetchPicture()
 
         }
+    }
+
+    fun checkForInternet():Boolean{
+        return checkForInternet(context)
     }
 
     fun updatePicture(pictureData: PictureData) {
