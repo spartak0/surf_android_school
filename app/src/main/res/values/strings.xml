@@ -5,4 +5,20 @@
     <string name="signIn">Войти</string>
     <string name="password">Пароль</string>
     <string name="myFavorite">Мои избранные</string>
+    <string name="gallery">Галерея</string>
+    <string name="empty">Пусто</string>
+    <string name="no">НЕТ</string>
+    <string name="yes">ДА</string>
+    <string name="removeFavorite">Вы точно хотите удалить из избранного?</string>
+    <string name="hintEnterRequest">Введите ваш запрос</string>
+    <string name="noInternet">Отсутствует интернет-соединение\nПопробуйте позже</string>
+    <string name="noResults">По этому запросу нет результатов,\nпопробуйте другой запрос</string>
+    <string name="incorrectLoginOrPass">Введён неправильный логин или пароль</string>
+    <string name="fieldEmpty">Поле не может быть пустым</string>
+    <string name="incorrectNumber">Неверный формат номера телефона</string>
+    <string name="emptyField">Поле не может быть пустым</string>
+    <string name="wrongSizePass">Неподходящий размер пароля</string>
+    <string name="failedExit">Не удалось выйти, попробуйте ещё</string>
+    <string name="exitApp">Вы точно хотите выйти из приложения?</string>
+
 </resources>

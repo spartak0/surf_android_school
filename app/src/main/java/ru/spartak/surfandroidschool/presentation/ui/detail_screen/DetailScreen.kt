@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,13 +55,13 @@ fun DetailTopBar(backNavigation: () -> Unit) {
         IconButton(onClick = { backNavigation() }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_backarrow),
-                contentDescription = "back arrow search",
+                contentDescription = null,
                 tint = MaterialTheme.colors.primary
             )
         }
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.medium))
         Text(
-            text = "Галерея",
+            text = stringResource(R.string.gallery),
             style = TextStyle(fontWeight = FontWeight.W600, fontSize = 24.sp),
             color = MaterialTheme.colors.primary
         )

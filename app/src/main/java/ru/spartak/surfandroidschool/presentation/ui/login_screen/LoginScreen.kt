@@ -1,7 +1,6 @@
 package ru.spartak.surfandroidschool.presentation.ui.login_screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -124,7 +123,8 @@ fun LoginScreen(viewModel: LoginScreenViewModel = hiltViewModel(), navController
                             snackbarController.getScope().launch(Dispatchers.IO) {
                                 snackbarController.showSnackbar(
                                     scaffoldState = scaffoldState,
-                                    message = "Введён неправильный логин или пароль",
+                                    message = navController.context.applicationContext
+                                        .getString(R.string.incorrectLoginOrPass),
                                 )
                             }
                         })

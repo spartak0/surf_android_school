@@ -39,16 +39,12 @@ class ProfileViewModel @Inject constructor(
             userRepository.logout().collect { state ->
                 when (state) {
                     is NetworkResult.Success -> {
-                        Log.d("AAA", "logout: success")
                         onSuccess()
                     }
                     is NetworkResult.Error -> {
-                        Log.d("AAA", "logout: error")
                         onError()
                     }
-                    else -> {
-                        Log.d("AAA", "logout: else")
-                    }
+                    else -> {}
                 }
             }
         }

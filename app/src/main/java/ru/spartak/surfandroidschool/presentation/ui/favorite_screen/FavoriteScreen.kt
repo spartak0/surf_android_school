@@ -44,7 +44,7 @@ fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel()) {
             if (favoritePictureList.value.isEmpty())
                 FullscreenIconHint(
                     iconId = R.drawable.ic_sadsmiley,
-                    textHint = "Пусто"
+                    textHint = stringResource(R.string.empty)
                 )
             else VerticalList(
                 items = favoritePictureList.value,
@@ -54,14 +54,14 @@ fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel()) {
                 Dialog(
                     showDialogState = showDialog.value.first,
                     dismissRequest = { showDialog.value = Pair(false, PictureData()) },
-                    dismissButtonText = "НЕТ",
+                    dismissButtonText = stringResource(R.string.no),
                     confirmRequest = {
                         val newPictureValue = showDialog.value.second.copy(isFavorite = false)
                         viewModel.updatePicture(newPictureValue)
                         showDialog.value = Pair(false, PictureData())
                     },
-                    confirmButtonText = "ДА",
-                    text = "Вы точно хотите удалить из избранного?"
+                    confirmButtonText = stringResource(R.string.yes),
+                    text = stringResource(R.string.removeFavorite)
                 )
         }
     }
@@ -118,7 +118,7 @@ fun Post(pictureData: PictureData, dialogState: MutableState<Pair<Boolean, Pictu
             }) {
             Icon(
                 painter = painterResource(id = if (pictureData.isFavorite) R.drawable.ic_favorite else R.drawable.ic_not_favorite),
-                contentDescription = "favorite",
+                contentDescription = null,
                 tint = favoriteBtn
             )
         }

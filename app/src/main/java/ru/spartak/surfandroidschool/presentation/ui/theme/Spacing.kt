@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 data class Spacing(
-    //todo дать нормальные имена
     val small: Dp = 8.dp,
     val smallMedium: Dp = 10.dp,
     val smallMediumMedium: Dp = 12.dp,

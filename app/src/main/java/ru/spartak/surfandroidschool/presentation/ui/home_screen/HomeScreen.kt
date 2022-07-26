@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -97,7 +98,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                 snackbarController.getScope().launch(Dispatchers.IO) {
                     snackbarController.showSnackbar(
                         scaffoldState = scaffoldState,
-                        message = "Отсутствует интернет-соединение\n Попробуйте позже",
+                        message = navController.context.applicationContext.getString(R.string.noInternet),
                     )
                 }
             }
@@ -114,7 +115,7 @@ fun DefaultScreen(
     if (postList.isEmpty()) {
         FullscreenIconHint(
             iconId = R.drawable.ic_sadsmiley,
-            textHint = "Пусто"
+            textHint = stringResource(id = R.string.empty)
         )
     } else VerticalGrid(
         items = postList,
@@ -141,15 +142,14 @@ fun SearchedScreen(
     if (textSearchBar.value.isEmpty()) {
         FullscreenIconHint(
             iconId = R.drawable.ic_magnifyingglass,
-            textHint = "Введите ваш запрос"
+            textHint = stringResource(R.string.hintEnterRequest)
         )
     } else {
         val searchedList = viewModel.newSearch(textSearchBar.value)
         if (searchedList.isEmpty()) {
             FullscreenIconHint(
                 iconId = R.drawable.ic_sadsmiley,
-                textHint = "По этому запросу нет результатов,\n" +
-                        "попробуйте другой запрос"
+                textHint = stringResource(id = R.string.noResults)
             )
         } else VerticalGrid(
             items = searchedList,
