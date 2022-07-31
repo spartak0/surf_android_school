@@ -1,5 +1,6 @@
 package ru.spartak.surfandroidschool.data.repository
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.spartak.surfandroidschool.data.SyncUpManager

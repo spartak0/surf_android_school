@@ -1,5 +1,6 @@
 package ru.spartak.surfandroidschool.data
 
+import android.util.Log
 import ru.spartak.surfandroidschool.data.database.picture_database.dao.PictureDao
 import ru.spartak.surfandroidschool.data.network.api.RetrofitApi
 import ru.spartak.surfandroidschool.domain.mapper.PictureMapper
@@ -13,15 +14,13 @@ class SyncUpManager(
 ) {
     suspend fun syncAll(token: String) {
         val pictureFromDB = pictureDao.getLocalePicture()
-        api.getPicture(token).body()?.let {
+        api.getPicture("Token $token").body()?.let {
             val listDB = pictureFromDB.stream().map { entity ->
                 pictureMapper.entityToDomain(entity)
             }.collect(Collectors.toList())
-
             val listNetwork = it.stream().map { pic ->
                 pictureMapper.dtoToDomain(pic)
             }.collect(Collectors.toList())
-
             if (pictureFromDB.isEmpty()) listNetwork.forEach { picData ->
                 pictureDao.addPicture(
                     pictureMapper.domainToEntity(
