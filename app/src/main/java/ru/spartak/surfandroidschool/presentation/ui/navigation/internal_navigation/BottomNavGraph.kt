@@ -38,7 +38,7 @@ fun BottomNavGraph(
             )
         }
         composable(route = BottomBarItemScreen.Favorite.route) {
-            FavoriteScreen()
+            FavoriteScreen(navController = externalNavHostController)
         }
     }
 }

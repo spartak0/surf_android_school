@@ -1,6 +1,7 @@
 package ru.spartak.surfandroidschool.presentation.ui.favorite_screen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,21 +21,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.skydoves.landscapist.glide.GlideImage
 import ru.spartak.surfandroidschool.R
 import ru.spartak.surfandroidschool.domain.model.PictureData
 import ru.spartak.surfandroidschool.presentation.ui.detail.Dialog
 import ru.spartak.surfandroidschool.presentation.ui.home_screen.FullscreenIconHint
+import ru.spartak.surfandroidschool.presentation.ui.navigation.external_navigation.ExternalScreen
 import ru.spartak.surfandroidschool.presentation.ui.theme.DefaultTheme
 import ru.spartak.surfandroidschool.presentation.ui.theme.favoriteBtn
 import ru.spartak.surfandroidschool.presentation.ui.theme.spacing
+import ru.spartak.surfandroidschool.utils.Constants
 import java.text.SimpleDateFormat
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel()) {
+fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel(), navController:NavController) {
     val showDialog = remember { mutableStateOf(Pair(false, PictureData())) }
     val favoritePictureList = viewModel.favoritePictureList.collectAsState()
     viewModel.fetchFavoritePicture()
@@ -49,6 +54,16 @@ fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel()) {
             else VerticalList(
                 items = favoritePictureList.value,
                 dialogState = showDialog,
+                postOnClick = { pictureData ->
+                    run {
+                        navController.currentBackStackEntry?.arguments?.putAll(
+                            bundleOf(
+                                Constants.DETAIL_ARGUMENTS_KEY to pictureData
+                            )
+                        )
+                        navController.navigate(ExternalScreen.DetailScreen.route)
+                    }
+                }
             )
             if (showDialog.value.first)
                 Dialog(
@@ -79,7 +94,11 @@ fun FavoriteTopBar() {
 }
 
 @Composable
-fun VerticalList(items: List<PictureData>, dialogState: MutableState<Pair<Boolean, PictureData>>) {
+fun VerticalList(
+    items: List<PictureData>,
+    dialogState: MutableState<Pair<Boolean, PictureData>>,
+    postOnClick: (PictureData) -> Unit
+) {
     LazyColumn(
         contentPadding = PaddingValues(
             vertical = MaterialTheme.spacing.smallMedium,
@@ -88,14 +107,18 @@ fun VerticalList(items: List<PictureData>, dialogState: MutableState<Pair<Boolea
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
         items(items = items) { item ->
-            Post(item, dialogState)
+            Post(item, dialogState, postOnClick = postOnClick)
         }
     }
 }
 
 @Composable
-fun Post(pictureData: PictureData, dialogState: MutableState<Pair<Boolean, PictureData>>) {
-    ConstraintLayout {
+fun Post(
+    pictureData: PictureData,
+    dialogState: MutableState<Pair<Boolean, PictureData>>,
+    postOnClick: (PictureData) -> Unit
+) {
+    ConstraintLayout(Modifier.clickable { postOnClick(pictureData) }) {
         val (image, like, title, content, date) = createRefs()
         val spacing = MaterialTheme.spacing
         GlideImage(
