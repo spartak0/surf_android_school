@@ -29,14 +29,19 @@ class SyncUpManager(
                 )
             }
             else {
+                Log.d("AAA", "syncAll: network\n$listNetwork")
+                Log.d("AAA", "syncAll: db\n $listDB")
                 val newList = mutableListOf<PictureData>()
                 for (i in listNetwork) {
+                    var met = false
                     for (j in listDB) {
                         if (i.id == j.id) {
                             val tmpPicture = i.copy(isFavorite = j.isFavorite)
+                            met = true
                             newList.add(tmpPicture)
                         }
                     }
+                    if (!met) newList.add(i)
                 }
                 pictureDao.clearTable()
                 newList.forEach { picData ->
